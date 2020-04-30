@@ -1,0 +1,8 @@
+/local.properties
+/sample/build/generated/source/kaptKotlin/main/
+/sample/build/
+/constantk-generator/build/
+/constantk/build/
+/build/
+/.idea/
+/.gradle/
