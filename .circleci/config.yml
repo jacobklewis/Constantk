@@ -27,6 +27,11 @@ jobs:
     steps:
       - checkout
 
+      # add local.properties
+      - run:
+          name: Add local.properties
+          command: echo $localprops | base64 --decode > local.properties
+
       # Download and cache dependencies
       - restore_cache:
           keys:
@@ -40,11 +45,6 @@ jobs:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
-
-      # add local.properties
-      - run:
-          name: Add local.properties
-          command: echo $localprops | base64 --decode > local.properties
 
       # build!
       - run:
@@ -67,6 +67,11 @@ jobs:
     steps:
       - checkout
 
+      # add local.properties
+      - run:
+          name: Add local.properties
+          command: echo $localprops | base64 --decode > local.properties
+
       # Download and cache dependencies
       - restore_cache:
           keys:
@@ -80,11 +85,6 @@ jobs:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
-
-      # add local.properties
-      - run:
-          name: Add local.properties
-          command: echo $localprops | base64 --decode > local.properties
 
       # build!
       - run:
