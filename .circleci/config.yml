@@ -31,12 +31,7 @@ jobs:
       # add local.properties
       - run:
           name: Add local.properties
-          command: pwd
-
-      # add local.properties
-      - run:
-          name: Add local.properties
-          command: ls
+          command: echo $localprops | base64 --decode > gradle.properties
 
       # Download and cache dependencies
       - restore_cache:
@@ -78,6 +73,11 @@ jobs:
           name: Add local.properties
           command: echo $localprops | base64 --decode > local.properties
 
+      # add local.properties
+      - run:
+          name: Add local.properties
+          command: echo $localprops | base64 --decode > gradle.properties
+
       # Download and cache dependencies
       - restore_cache:
           keys:
@@ -105,7 +105,7 @@ jobs:
       # build!
       - run:
           name: Build
-          command: cat local.properties
+          command: cat gradle.properties
 
       # deploy!
       - run:
