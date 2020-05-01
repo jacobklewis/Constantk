@@ -108,7 +108,7 @@ jobs:
       # deploy!
       - run:
           name: Deploy
-          command: ./gradlew bintrayUpload
+          command: ./gradlew bintrayUpload --info
 
 workflows:
   main_workflow:
