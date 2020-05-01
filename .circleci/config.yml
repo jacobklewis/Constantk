@@ -31,10 +31,6 @@ jobs:
       - run:
           name: Add local.properties
           command: echo $localprops | base64 --decode > local.properties
-      # add local.properties
-      - run:
-          name: Debug
-          command: echo $localprops | base64 --decode
 
       # Download and cache dependencies
       - restore_cache:
@@ -108,7 +104,7 @@ jobs:
       # deploy!
       - run:
           name: Deploy
-          command: ./gradlew bintrayUpload --info
+          command: ./gradlew bintrayUpload --debug
 
 workflows:
   main_workflow:
