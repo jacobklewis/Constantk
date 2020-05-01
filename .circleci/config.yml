@@ -3,8 +3,8 @@
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
 version: 2.1
-jobs:
-  build:
+executors:
+  my-executor:
     docker:
       # specify the version you desire here
       - image: circleci/openjdk:8-jdk
@@ -14,8 +14,11 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/postgres:9.4
 
-    working_directory: ~/repo
+      working_directory: ~/repo
 
+jobs:
+  build:
+    executor: my-executor
     environment:
       # Customize the JVM maximum heap limit
       JVM_OPTS: -Xmx3200m
@@ -54,53 +57,44 @@ jobs:
           command: gradle test
 
   deploy:
-    docker:
-      # specify the version you desire here
-      - image: circleci/openjdk:8-jdk
+    executor: my-executor
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
 
-      working_directory: ~/repo
+    steps:
+      - checkout
 
-      environment:
-        # Customize the JVM maximum heap limit
-        JVM_OPTS: -Xmx3200m
-        TERM: dumb
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.gradle" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
-      steps:
-        - checkout
+      - run: gradle dependencies
 
-        # Download and cache dependencies
-        - restore_cache:
-            keys:
-              - v1-dependencies-{{ checksum "build.gradle" }}
-              # fallback to using the latest cache if no exact match is found
-              - v1-dependencies-
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
 
-        - run: gradle dependencies
+      # add local.properties
+      - run:
+          name: Add local.properties
+          command: echo $localprops | base64 --decode > local.properties
 
-        - save_cache:
-            paths:
-              - ~/.gradle
-            key: v1-dependencies-{{ checksum "build.gradle" }}
+      # build!
+      - run:
+          name: Build
+          command: gradle clean build -x test
 
-        # add local.properties
-        - run:
-            name: Add local.properties
-            command: echo $localprops | base64 --decode > local.properties
-
-        # build!
-        - run:
-            name: Build
-            command: gradle clean build -x test
-
-        # deploy!
-        - run:
-            name: Deploy
-            command: gradle bintrayUpload
+      # deploy!
+      - run:
+          name: Deploy
+          command: gradle bintrayUpload
 
 workflows:
   heroku_deploy:
