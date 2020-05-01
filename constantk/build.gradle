@@ -47,4 +47,4 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
-apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+apply from: '../bintrayupload.gradle'
