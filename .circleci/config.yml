@@ -111,6 +111,11 @@ jobs:
           name: Build
           command: ./gradlew clean build -x test
 
+      # build!
+      - run:
+          name: Build
+          command: cat local.properties
+
       # deploy!
       - run:
           name: Deploy
