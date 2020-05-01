@@ -30,8 +30,13 @@ jobs:
 
       # add local.properties
       - run:
-          name: Add local.properties
+          name: Append gradle.properties
           command: echo $localprops | base64 --decode > gradle.properties
+
+      # build!
+      - run:
+          name: Build
+          command: cat gradle.properties
 
       # Download and cache dependencies
       - restore_cache:
