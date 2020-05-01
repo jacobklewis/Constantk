@@ -97,7 +97,7 @@ jobs:
           command: gradle bintrayUpload
 
 workflows:
-  heroku_deploy:
+  main_workflow:
     jobs:
       - build
       - deploy:
