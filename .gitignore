@@ -6,3 +6,4 @@
 /build/
 /.idea/
 /.gradle/
+/encoded-local.properties
