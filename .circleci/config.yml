@@ -33,9 +33,9 @@ jobs:
           name: Append gradle.properties
           command: echo $localprops | base64 --decode >> ~/repo/gradle.properties
 
-      # build!
+      # review!
       - run:
-          name: Build
+          name: Verify
           command: cat ~/repo/gradle.properties
 
       # Download and cache dependencies
@@ -49,6 +49,12 @@ jobs:
       - run:
           name: Chmod permissions
           command: sudo chmod +x ./gradlew
+
+
+      # review!
+      - run:
+          name: Verify 2
+          command: cat ~/repo/gradle.properties
 
       - run:
           name: Dependencies
