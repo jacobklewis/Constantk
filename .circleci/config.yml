@@ -31,12 +31,12 @@ jobs:
       # add local.properties
       - run:
           name: Append gradle.properties
-          command: echo $localprops | base64 --decode >> gradle.properties
+          command: echo $localprops | base64 --decode >> ~/repo/gradle.properties
 
       # build!
       - run:
           name: Build
-          command: cat gradle.properties
+          command: cat ~/repo/gradle.properties
 
       # Download and cache dependencies
       - restore_cache:
@@ -78,12 +78,12 @@ jobs:
       # add local.properties
       - run:
           name: Add local.properties
-          command: echo $localprops | base64 --decode > local.properties
+          command: echo $localprops | base64 --decode > ~/repo/local.properties
 
       # add local.properties
       - run:
           name: Add local.properties
-          command: echo $localprops | base64 --decode >> gradle.properties
+          command: echo $localprops | base64 --decode >> ~/repo/gradle.properties
 
       # Download and cache dependencies
       - restore_cache:
