@@ -45,6 +45,11 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
+      #if permission for Gradlew Dependencies fail, use this.
+      - run:
+          name: Chmod permissions
+          command: sudo chmod +x ./gradlew
+
       - run:
           name: Dependencies
           command: ./gradlew dependencies
@@ -53,11 +58,6 @@ jobs:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
-
-      #if permission for Gradlew Dependencies fail, use this.
-      - run:
-          name: Chmod permissions
-          command: sudo chmod +x ./gradlew
 
       # build!
       - run:
@@ -92,6 +92,11 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
+      #if permission for Gradlew Dependencies fail, use this.
+      - run:
+          name: Chmod permissions
+          command: sudo chmod +x ./gradlew
+
       - run:
           name: Dependencies
           command: ./gradlew dependencies
@@ -100,11 +105,6 @@ jobs:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
-
-      #if permission for Gradlew Dependencies fail, use this.
-      - run:
-          name: Chmod permissions
-          command: sudo chmod +x ./gradlew
 
       # build!
       - run:
