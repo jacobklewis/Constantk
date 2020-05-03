@@ -7,7 +7,7 @@ executors:
   my-executor:
     docker:
     # specify the version you desire here
-    - image: circleci/openjdk:8u212-b04-jdk-stretch
+    - image: circleci/openjdk:8-jdk
 
     # Specify service dependencies here if necessary
     # CircleCI maintains a library of pre-built images
@@ -27,69 +27,6 @@ jobs:
       - run:
           name: Add local.properties
           command: echo $localprops | base64 --decode > local.properties
-
-      # add local.properties
-      - run:
-          name: Append gradle.properties
-          command: echo $localprops | base64 --decode >> ~/repo/gradle.properties
-
-      # review!
-      - run:
-          name: Verify
-          command: cat ~/repo/gradle.properties
-
-      # Download and cache dependencies
-#      - restore_cache:
-#          keys:
-#            - v1-dependencies-{{ checksum "build.gradle" }}
-#            # fallback to using the latest cache if no exact match is found
-#            - v1-dependencies-
-
-      #if permission for Gradlew Dependencies fail, use this.
-      - run:
-          name: Chmod permissions
-          command: sudo chmod +x ./gradlew
-
-
-      # review!
-      - run:
-          name: Verify 2
-          command: cat ~/repo/gradle.properties
-
-      - run:
-          name: Dependencies
-          command: ./gradlew dependencies
-
-#      - save_cache:
-#          paths:
-#            - ~/.gradle
-#          key: v1-dependencies-{{ checksum "build.gradle" }}
-
-      # build!
-      - run:
-          name: Build
-          command: ./gradlew clean build -x test
-
-      # run tests!
-      - run:
-          name: Test
-          command: ./gradlew test
-
-  deploy:
-    executor: my-executor
-
-    steps:
-      - checkout
-
-      # add local.properties
-      - run:
-          name: Add local.properties
-          command: echo $localprops | base64 --decode > ~/repo/local.properties
-
-      # add local.properties
-      - run:
-          name: Add local.properties
-          command: echo $localprops | base64 --decode >> ~/repo/gradle.properties
 
       # Download and cache dependencies
       - restore_cache:
@@ -117,10 +54,47 @@ jobs:
           name: Build
           command: ./gradlew clean build -x test
 
+      # run tests!
+      - run:
+          name: Test
+          command: ./gradlew test
+
+  deploy:
+    executor: my-executor
+
+    steps:
+      - checkout
+
+      # add local.properties
+      - run:
+          name: Add local.properties
+          command: echo $localprops | base64 --decode > local.properties
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.gradle" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      #if permission for Gradlew Dependencies fail, use this.
+      - run:
+          name: Chmod permissions
+          command: sudo chmod +x ./gradlew
+
+      - run:
+          name: Dependencies
+          command: ./gradlew dependencies
+
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
+
       # build!
       - run:
           name: Build
-          command: cat gradle.properties
+          command: ./gradlew clean build -x test
 
       # deploy!
       - run:
