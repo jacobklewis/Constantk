@@ -5,13 +5,14 @@ import com.squareup.kotlinpoet.*
 import java.io.File
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
+import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.tools.Diagnostic
 
 @AutoService(Processor::class)
-class NamedConstantGenerator : AbstractProcessor() {
+class AndroidAssetGenerator : AbstractProcessor() {
 
     var logger: Messager? = null
 
@@ -20,7 +21,7 @@ class NamedConstantGenerator : AbstractProcessor() {
     }
 
     override fun getSupportedAnnotationTypes(): MutableSet<String> {
-        return mutableSetOf(NamedConstant::class.java.name)
+        return mutableSetOf(AndroidAsset::class.java.name)
     }
 
     override fun init(processingEnv: ProcessingEnvironment?) {
@@ -33,8 +34,13 @@ class NamedConstantGenerator : AbstractProcessor() {
         logger?.printMessage(Diagnostic.Kind.NOTE, message.toString())
     }
 
+    fun error(message: Any?, element: Element) {
+        message ?: return
+        logger?.printMessage(Diagnostic.Kind.ERROR, message.toString(), element)
+    }
+
     override fun process(annotations: MutableSet<out TypeElement>?, roundEnv: RoundEnvironment): Boolean {
-        val namedConstants = roundEnv.getElementsAnnotatedWith(NamedConstant::class.java)
+        val namedConstants = roundEnv.getElementsAnnotatedWith(AndroidAsset::class.java)
         note("number of items: ${namedConstants.size} \n ")
         // Iterate over each named constant and group by parent class
         val groupedNC = namedConstants.groupBy { nc ->
@@ -44,7 +50,7 @@ class NamedConstantGenerator : AbstractProcessor() {
             } else {
                 var nEl = nc.enclosingElement
                 while (nEl != null && (nEl.kind != ElementKind.CLASS || nEl.modifiers.contains(Modifier.STATIC))) {
-                    note("skipping to parent for item: ${nEl.simpleName.toString()} kind: ${nEl.kind} \n ")
+                    note("skipping to parent for item: ${nEl.simpleName} kind: ${nEl.kind} \n ")
                     nEl = nEl.enclosingElement
                 }
                 (nEl ?: nc).simpleName.toString()
@@ -52,15 +58,27 @@ class NamedConstantGenerator : AbstractProcessor() {
         }
 
         for ((groupName, groupNC) in groupedNC) {
-            val objName = "${groupName}NamedConst"
+            val objName = "${groupName}Assets"
             val constNameValuePairs = groupNC.flatMap { el ->
                 val elName = el.simpleName.toString().replace("\$annotations", "")
-                el.getAnnotationsByType(NamedConstant::class.java).map {
-                    val constValue = it.propertyName
-                    val elAsValue = it.elemAsValue
-                    val name = if (constValue.isBlank()) elName else constValue
-                    val value = if (elAsValue) elName else name
-                    return@map name to value
+                el.getAnnotationsByType(AndroidAsset::class.java).map {
+                    val assetPath = it.path.removePrefix("/")
+                    val origPath = processingEnv.options[KAPT_KOTLIN_GENERATED_OPTION_NAME] ?: ""
+                    val startPath = origPath.replace("\\", "/")
+                    val buildIndex = startPath.indexOf("/build/")
+                    val finalPath = "${startPath.substring(0, buildIndex)}/src/main/assets/$assetPath".let { str ->
+                        if (origPath.contains("\\")) {
+                            str.replace("/", "\\")
+                        } else {
+                            str
+                        }
+                    }
+                    val file = File(finalPath)
+                    if (!file.exists()) {
+                        error("Asset: '$finalPath' does not exist in your assets. Please verify!", el)
+                    }
+                    val verifiedPath = "file:///android_asset/$assetPath"
+                    return@map elName to verifiedPath
                 }
             }
 
@@ -74,12 +92,12 @@ class NamedConstantGenerator : AbstractProcessor() {
                         throw Exception("Constant ${ncNameVals.first} could not be formatted to a usable constant Name")
                     }
                     addProperty(
-                            PropertySpec.builder(
-                                    constName,
-                                    ClassName("kotlin", "String"),
-                                    KModifier.CONST,
-                                    KModifier.FINAL
-                            ).mutable(false).initializer("\"${ncNameVals.second}\"").build()
+                        PropertySpec.builder(
+                            constName,
+                            ClassName("kotlin", "String"),
+                            KModifier.CONST,
+                            KModifier.FINAL
+                        ).mutable(false).initializer("\"${ncNameVals.second}\"").build()
                     )
                 }
                 build()
@@ -87,7 +105,7 @@ class NamedConstantGenerator : AbstractProcessor() {
 
             val pack = processingEnv.elementUtils.getPackageOf(groupNC.first()).toString()
             val file = FileSpec.builder(pack, objName)
-                    .addType(obj).build()
+                .addType(obj).build()
             val kaptKotlinGeneratedDir = processingEnv.options[KAPT_KOTLIN_GENERATED_OPTION_NAME]
             file.writeTo(File(kaptKotlinGeneratedDir, "$objName.kt"))
         }
