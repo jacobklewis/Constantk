@@ -1,18 +1,27 @@
 package me.jacoblewis.constantk.sample
 
+import me.jacoblewis.constantk.AndroidAsset
 import me.jacoblewis.constantk.NamedConstant
+import java.io.File
 
 
 fun main() {
     println("Hello World")
-    println(DogNamedConst.USER_FRIENDLY_NAMES)
 }
 
 class Dog {
 
-    @NamedConstant("userFriendlyNames")
-    val userNames: String
-        get() = "Name1, Name2"
+    @AndroidAsset("text/dog.txt")
+    val dogText = File(DogAssets.DOG_TEXT)
+
+}
+
+class Person {
+    val db = mutableMapOf<String, Any>()
+    fun saveUser(@NamedConstant firstName: String, @NamedConstant lastName: String) {
+        db[PersonNamedConst.FIRST_NAME] = firstName
+        db[PersonNamedConst.LAST_NAME] = firstName
+    }
 }
 
 

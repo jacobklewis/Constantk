@@ -10,7 +10,4 @@ package me.jacoblewis.constantk
     AnnotationTarget.TYPE_PARAMETER,
     AnnotationTarget.VALUE_PARAMETER
 )
-annotation class NamedConstant(
-    val propertyName: String = "",
-    val elemAsValue: Boolean = false
-)
+annotation class AndroidAsset(val path: String)
