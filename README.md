@@ -20,7 +20,7 @@ fun saveUser(@NamedConstant firstName: String, @NamedConstant lastName: String) 
 
 ## Setup
 ```groovy
-def constantk_version = '0.0.6'
+def constantk_version = '0.1.0'
 dependencies {
     kapt "me.jacoblewis.constantk:constantk-generator:$constantk_version"
     compileOnly "me.jacoblewis.constantk:constantk:$constantk_version"
