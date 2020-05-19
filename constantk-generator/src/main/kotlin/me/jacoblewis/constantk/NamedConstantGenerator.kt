@@ -66,7 +66,9 @@ class NamedConstantGenerator : AbstractProcessor() {
 
             val obj = with(TypeSpec.objectBuilder(objName)) {
                 for (ncNameVals in constNameValuePairs) {
-                    var constName = ncNameVals.first.filter { it.isLetterOrDigit() }.camelToUpperSnakeCase()
+                    var constName =
+                        ncNameVals.first.split(" ").joinToString { it.capitalize() }.filter { it.isLetterOrDigit() }
+                            .camelToUpperSnakeCase()
                     while (constName.firstOrNull()?.isDigit() == true) {
                         constName = constName.substring(1)
                     }
@@ -74,12 +76,12 @@ class NamedConstantGenerator : AbstractProcessor() {
                         throw Exception("Constant ${ncNameVals.first} could not be formatted to a usable constant Name")
                     }
                     addProperty(
-                            PropertySpec.builder(
-                                    constName,
-                                    ClassName("kotlin", "String"),
-                                    KModifier.CONST,
-                                    KModifier.FINAL
-                            ).mutable(false).initializer("\"${ncNameVals.second}\"").build()
+                        PropertySpec.builder(
+                            constName,
+                            ClassName("kotlin", "String"),
+                            KModifier.CONST,
+                            KModifier.FINAL
+                        ).mutable(false).initializer("\"${ncNameVals.second}\"").build()
                     )
                 }
                 build()
@@ -87,7 +89,7 @@ class NamedConstantGenerator : AbstractProcessor() {
 
             val pack = processingEnv.elementUtils.getPackageOf(groupNC.first()).toString()
             val file = FileSpec.builder(pack, objName)
-                    .addType(obj).build()
+                .addType(obj).build()
             val kaptKotlinGeneratedDir = processingEnv.options[KAPT_KOTLIN_GENERATED_OPTION_NAME]
             file.writeTo(File(kaptKotlinGeneratedDir, "$objName.kt"))
         }
