@@ -1,6 +1,7 @@
 ConstantK
 =====
 ![Logo](website/constant-k-icon.png)
+
 A lightweight library for conveniently generating constants for your Kotlin projects.
 
 ## Usage
