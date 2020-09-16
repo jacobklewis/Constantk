@@ -28,5 +28,6 @@ package me.jacoblewis.constantk
 )
 annotation class NamedConstant(
     val propertyName: String = "",
-    val elemAsValue: Boolean = false
+    val elemAsValue: Boolean = false,
+    val removeGetterSetter: Boolean = true
 )

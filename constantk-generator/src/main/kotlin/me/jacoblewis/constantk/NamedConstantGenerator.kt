@@ -70,8 +70,8 @@ class NamedConstantGenerator : AbstractProcessor() {
         for ((groupName, groupNC) in groupedNC) {
             val objName = "${groupName}NamedConst"
             val constNameValuePairs = groupNC.flatMap { el ->
-                val elName = el.simpleName.toString().replace("\$annotations", "")
                 el.getAnnotationsByType(NamedConstant::class.java).map {
+                    val elName = cleanupName(el.simpleName.toString(), it.removeGetterSetter)
                     val constValue = it.propertyName
                     val elAsValue = it.elemAsValue
                     val name = if (constValue.isBlank()) elName else constValue
@@ -111,6 +111,17 @@ class NamedConstantGenerator : AbstractProcessor() {
         }
 
         return true
+    }
+
+    private fun cleanupName(rawName: String, removeGetterSetter: Boolean): String {
+        return rawName.replace("\$annotations", "").let {
+            if (removeGetterSetter) {
+                it.removePrefix("get")
+                    .removePrefix("set")
+            } else {
+                it
+            }
+        }
     }
 
     companion object {

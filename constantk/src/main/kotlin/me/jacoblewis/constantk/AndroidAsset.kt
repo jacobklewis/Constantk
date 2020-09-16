@@ -26,4 +26,4 @@ package me.jacoblewis.constantk
     AnnotationTarget.TYPE_PARAMETER,
     AnnotationTarget.VALUE_PARAMETER
 )
-annotation class AndroidAsset(val path: String)
+annotation class AndroidAsset(val path: String, val removeGetterSetter: Boolean = true)
