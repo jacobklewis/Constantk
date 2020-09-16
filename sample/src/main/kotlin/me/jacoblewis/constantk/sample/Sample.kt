@@ -13,7 +13,7 @@ fun main() {
 class Dog {
 
     @AndroidAsset("text/dog.txt")
-    val dogText = File(DogAssets.DOG_TEXT)
+    val dogText = File(DogAssets.GET_DOG_TEXT)
 
 }
 
