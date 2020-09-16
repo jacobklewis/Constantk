@@ -60,8 +60,8 @@ class AndroidAssetGenerator : AbstractProcessor() {
         for ((groupName, groupNC) in groupedNC) {
             val objName = "${groupName}Assets"
             val constNameValuePairs = groupNC.flatMap { el ->
-                val elName = el.simpleName.toString().replace("\$annotations", "")
                 el.getAnnotationsByType(AndroidAsset::class.java).map {
+                    val elName = cleanupName(el.simpleName.toString(), it.removeGetterSetter)
                     val assetPath = it.path.removePrefix("/")
                     val origPath = processingEnv.options[KAPT_KOTLIN_GENERATED_OPTION_NAME] ?: ""
                     val startPath = origPath.replace("\\", "/")
@@ -111,6 +111,17 @@ class AndroidAssetGenerator : AbstractProcessor() {
         }
 
         return true
+    }
+
+    private fun cleanupName(rawName: String, removeGetterSetter: Boolean): String {
+        return rawName.replace("\$annotations", "").let {
+            if (removeGetterSetter) {
+                it.removePrefix("get")
+                    .removePrefix("set")
+            } else {
+                it
+            }
+        }
     }
 
     companion object {
